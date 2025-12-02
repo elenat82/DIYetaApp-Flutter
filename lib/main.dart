@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'services/drupal_service.dart';
 
 //https://api.flutter.dev/flutter/material/BottomNavigationBar-class.html
@@ -125,15 +126,24 @@ class HomePage extends StatelessWidget {
               final article = articles[index];
               return Card(
                 margin: EdgeInsets.all(8.0),
-                child: ListTile(
-                  title: Text(article.title),
-                  subtitle: article.body != null
-                      ? Text(
-                          article.body!,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        article.title,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      SizedBox(height: 8.0),
+                      if (article.body != null)
+                        Html(
+                          data: article.body,
                         )
-                      : null,
+                      else
+                        Text('Nessuna descrizione disponibile'),
+                    ],
+                  ),
                 ),
               );
             },
