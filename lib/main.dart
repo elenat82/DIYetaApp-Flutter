@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'services/drupal_service.dart';
+
+//https://api.flutter.dev/flutter/material/BottomNavigationBar-class.html
 
 void main() {
   runApp(const MyApp());
@@ -30,10 +33,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0; // indice della pagina selezionata
+  late final DrupalService _drupalService;
+
+  @override
+  void initState() {
+    super.initState();
+    _drupalService = DrupalService();
+  }
 
   // Lista delle pagine associate ai pulsanti
-  final List<Widget> _pages = [
-    Center(child: Text('Home Page')),
+  late final List<Widget> _pages = [
+    HomePage(drupalService: _drupalService),
     Center(child: Text('Alimenti Page')),
     Center(child: Text('Pasti Page')),
     Center(child: Text('Giornate Page')),
@@ -49,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppBar( //barra in alto
         title: Text('DIYeta'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
@@ -60,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onTap: _onItemTapped,
         selectedItemColor: Colors.green,
         unselectedItemColor: Colors.grey,
-        items: const [
+        items: const <BottomNavigationBarItem> [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
@@ -83,6 +93,53 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class HomePage extends StatelessWidget {
+  final DrupalService drupalService;
+
+  const HomePage({super.key, required this.drupalService});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<Article>>(
+      future: drupalService.fetchArticles(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('Errore: ${snapshot.error}'),
+          );
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(
+            child: Text('Nessun articolo trovato'),
+          );
+        } else {
+          final articles = snapshot.data!;
+          return ListView.builder(
+            itemCount: articles.length,
+            itemBuilder: (context, index) {
+              final article = articles[index];
+              return Card(
+                margin: EdgeInsets.all(8.0),
+                child: ListTile(
+                  title: Text(article.title),
+                  subtitle: article.body != null
+                      ? Text(
+                          article.body!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        )
+                      : null,
+                ),
+              );
+            },
+          );
+        }
+      },
     );
   }
 }
