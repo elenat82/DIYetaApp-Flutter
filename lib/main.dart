@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'services/drupal_service.dart';
+import 'pages/alimenti_page.dart';
 
 //https://api.flutter.dev/flutter/material/BottomNavigationBar-class.html
 
@@ -45,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // Lista delle pagine associate ai pulsanti
   late final List<Widget> _pages = [
     HomePage(drupalService: _drupalService),
-    Center(child: Text('Alimenti Page')),
+    const AlimentiPage(),
     Center(child: Text('Pasti Page')),
     Center(child: Text('Giornate Page')),
     Center(child: Text('User Page')),
