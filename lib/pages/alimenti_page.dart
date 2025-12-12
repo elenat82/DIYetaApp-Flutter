@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../services/drupal_service.dart';
 
 class AlimentiPage extends StatefulWidget {
@@ -52,9 +52,13 @@ class _AlimentiPageState extends State<AlimentiPage> {
                       ),
                       SizedBox(height: 6.0),
                       if (food.marca != null)
-                        Text(
-                          'Marca: ${food.marca}',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            FaIcon(FontAwesomeIcons.tags, size: 14, color: const Color(0xFF5F7581)),
+                            SizedBox(width: 6.0),
+                            Text('Marca: ${food.marca}', style: Theme.of(context).textTheme.bodyMedium),
+                          ],
                         ),
                       SizedBox(height: 8.0),
                       if (food.valoriNutrizionali.isNotEmpty)
@@ -66,24 +70,27 @@ class _AlimentiPageState extends State<AlimentiPage> {
                               style: Theme.of(context).textTheme.titleSmall,
                             ),
                             SizedBox(height: 4.0),
-                            ...food.valoriNutrizionali.map((valore) {
-                              return Padding(
-                                padding: EdgeInsets.symmetric(vertical: 2.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (valore.kcal != null)
-                                      Text('Kcal: ${valore.kcal}', style: Theme.of(context).textTheme.bodySmall),
-                                    if (valore.proteine != null)
-                                      Text('Proteine: ${valore.proteine}g', style: Theme.of(context).textTheme.bodySmall),
-                                    if (valore.grassi != null)
-                                      Text('Grassi: ${valore.grassi}g', style: Theme.of(context).textTheme.bodySmall),
-                                    if (valore.carboidrati != null)
-                                      Text('Carboidrati: ${valore.carboidrati}g', style: Theme.of(context).textTheme.bodySmall),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
+                            Wrap(
+                              spacing: 12.0,
+                              runSpacing: 6.0,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: food.valoriNutrizionali.expand((valore) {
+                                final items = <Widget>[];
+                                if (valore.kcal != null) {
+                                  items.add(Row(mainAxisSize: MainAxisSize.min, children: [FaIcon(FontAwesomeIcons.fire, size: 14, color: const Color(0xFFEF4444)), SizedBox(width: 6.0), Text('Kcal: ${valore.kcal}', style: Theme.of(context).textTheme.bodySmall)]));
+                                }
+                                if (valore.proteine != null) {
+                                  items.add(Row(mainAxisSize: MainAxisSize.min, children: [FaIcon(FontAwesomeIcons.drumstickBite, size: 14, color: const Color(0xFF5E1D07)), SizedBox(width: 6.0), Text('Proteine: ${valore.proteine}g', style: Theme.of(context).textTheme.bodySmall)]));
+                                }
+                                if (valore.grassi != null) {
+                                  items.add(Row(mainAxisSize: MainAxisSize.min, children: [FaIcon(FontAwesomeIcons.bacon, size: 14, color: const Color(0xFFA13738)), SizedBox(width: 6.0), Text('Grassi: ${valore.grassi}g', style: Theme.of(context).textTheme.bodySmall)]));
+                                }
+                                if (valore.carboidrati != null) {
+                                  items.add(Row(mainAxisSize: MainAxisSize.min, children: [FaIcon(FontAwesomeIcons.breadSlice, size: 14, color: const Color(0xFFEDAA58)), SizedBox(width: 6.0), Text('Carboidrati: ${valore.carboidrati}g', style: Theme.of(context).textTheme.bodySmall)]));
+                                }
+                                return items;
+                              }).toList(),
+                            ),
                           ],
                         )
                       else
