@@ -57,6 +57,37 @@ class _AlimentiPageState extends State<AlimentiPage> {
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       SizedBox(height: 8.0),
+                      if (food.valoriNutrizionali.isNotEmpty)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Valori Nutrizionali:',
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            SizedBox(height: 4.0),
+                            ...food.valoriNutrizionali.map((valore) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(vertical: 2.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (valore.kcal != null)
+                                      Text('Kcal: ${valore.kcal}', style: Theme.of(context).textTheme.bodySmall),
+                                    if (valore.proteine != null)
+                                      Text('Proteine: ${valore.proteine}g', style: Theme.of(context).textTheme.bodySmall),
+                                    if (valore.grassi != null)
+                                      Text('Grassi: ${valore.grassi}g', style: Theme.of(context).textTheme.bodySmall),
+                                    if (valore.carboidrati != null)
+                                      Text('Carboidrati: ${valore.carboidrati}g', style: Theme.of(context).textTheme.bodySmall),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                        )
+                      else
+                        Text('Nessun valore nutrizionale disponibile', style: Theme.of(context).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic)),
                     ],
                   ),
                 ),

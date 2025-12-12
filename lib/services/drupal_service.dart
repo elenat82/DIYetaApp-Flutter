@@ -25,7 +25,7 @@ class DrupalService {
   }
 
   Future<List<Alimento>> fetchAlimenti() async {
-    final url = Uri.parse('$baseUrl/jsonapi/node/alimento?include=field_marca');
+    final url = Uri.parse('$baseUrl/jsonapi/node/alimento?include=field_marca,field_valori_nutrizionali');
 
     final response = await http.get(url);
 
@@ -71,12 +71,19 @@ class Alimento {
   final String id;
   final String title;
   final String? marca;
+  final List<ValoreNutrizionale> valoriNutrizionali;
 
-  const Alimento({required this.id, required this.title, this.marca});
+  const Alimento({
+    required this.id,
+    required this.title,
+    this.marca,
+    this.valoriNutrizionali = const [],
+  });
 
   factory Alimento.fromJson(Map<String, dynamic> json, Map<String, Map<String, dynamic>> includedById) {
     final attributes = json['attributes'] as Map<String, dynamic>? ?? {};
     final relationships = json['relationships'] as Map<String, dynamic>? ?? {};
+    
     String? marcaName;
     final marcaRefId = relationships['field_marca']?['data']?['id'] as String?;
     if (marcaRefId != null) {
@@ -84,10 +91,60 @@ class Alimento {
       marcaName = inc?['attributes']?['name'] as String?;
     }
 
+    List<ValoreNutrizionale> valori = [];
+    final valoriRelationship = relationships['field_valori_nutrizionali'] as Map<String, dynamic>? ?? {};
+    final valoriData = valoriRelationship['data'] as Map<String, dynamic>?;
+    
+    if (valoriData != null) {
+      final valoriId = valoriData['id'] as String?;
+      if (valoriId != null && includedById.containsKey(valoriId)) {
+        final valoriObj = includedById[valoriId];
+        final valore = ValoreNutrizionale.fromJson(valoriObj!);
+        valori.add(valore);
+      }
+    }
+
     return Alimento(
       id: json['id'] as String? ?? '',
       title: attributes['title'] as String? ?? 'No title',
       marca: marcaName,
+      valoriNutrizionali: valori,
     );
+  }
+}
+
+class ValoreNutrizionale {
+  final String id;
+  final double? kcal;
+  final double? carboidrati;
+  final double? grassi;
+  final double? proteine;
+
+  const ValoreNutrizionale({
+    required this.id,
+    this.kcal,
+    this.carboidrati,
+    this.grassi,
+    this.proteine,
+  });
+
+  factory ValoreNutrizionale.fromJson(Map<String, dynamic> json) {
+    final attributes = json['attributes'] as Map<String, dynamic>? ?? {};
+
+    return ValoreNutrizionale(
+      id: json['id'] as String? ?? '',
+      kcal: _toDouble(attributes['field_kcal']),
+      carboidrati: _toDouble(attributes['field_carboidrati']),
+      grassi: _toDouble(attributes['field_grassi']),
+      proteine: _toDouble(attributes['field_proteine']),
+    );
+  }
+
+  static double? _toDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
   }
 }
